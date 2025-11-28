@@ -1,8 +1,8 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { Questionnaire, TestScores } from '../types';
 
 // Fix: Initialize GoogleGenAI as per guidelines. Assumes process.env.API_KEY is available.
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '');
 
 
 interface AnalysisResponse {
@@ -11,14 +11,14 @@ interface AnalysisResponse {
 }
 
 const analysisSchema = {
-  type: Type.OBJECT,
+  type: SchemaType.OBJECT,
   properties: {
     analysis: {
-      type: Type.STRING,
+      type: SchemaType.STRING,
       description: "Análise psicológica detalhada do perfil do respondente, com no mínimo 200 palavras. Deve ser escrita em português do Brasil.",
     },
     summary: {
-      type: Type.STRING,
+      type: SchemaType.STRING,
       description: "Um resumo conciso da análise, com no máximo 30 palavras. Deve ser escrito em português do Brasil.",
     },
   },
@@ -59,19 +59,18 @@ Com base em TODAS as informações acima (pontuações e respostas individuais),
 `;
 
   try {
-    // Fix: Use ai.models.generateContent as per guidelines
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash", 
-      contents: fullPrompt,
-      config: {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: analysisSchema,
         temperature: 0.5,
       },
     });
 
-    // Fix: Access response.text directly as per guidelines
-    const text = response.text.trim();
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    const text = response.text().trim();
     // Sometimes the model wraps the JSON in markdown backticks
     const cleanJson = text.replace(/^```json\n?/, '').replace(/\n?```$/, '');
     const parsedResponse: AnalysisResponse = JSON.parse(cleanJson);
