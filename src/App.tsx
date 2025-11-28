@@ -52,16 +52,28 @@ const App: React.FC = () => {
 
   // Listener de Autenticação do Firebase
   useEffect(() => {
+      // Timeout de segurança: se demorar mais de 5 segundos, libera a tela
+      const timeoutId = setTimeout(() => {
+          console.warn('Firebase demorou muito para responder. Liberando tela de login.');
+          setIsAuthLoading(false);
+      }, 5000);
+
       const unsubscribe = subscribeToAuth(async (user) => {
+          clearTimeout(timeoutId); // Cancela o timeout se o Firebase responder
+          
           if (user) {
               // Se o usuário existe no Firebase
               // Se for um paciente, tentamos carregar os resultados dele
               if (user.role === UserRole.USER) {
-                  const results = await getUserResultsFromFirebase(user.id);
-                  // Se houver resultados, anexamos o mais recente (mock behavior upgrade)
-                  // Em um app real, user.testResult seria um array ou buscado sob demanda
-                  if (results.length > 0) {
-                      (user as Client).testResult = results[0]; 
+                  try {
+                      const results = await getUserResultsFromFirebase(user.id);
+                      // Se houver resultados, anexamos o mais recente (mock behavior upgrade)
+                      // Em um app real, user.testResult seria um array ou buscado sob demanda
+                      if (results.length > 0) {
+                          (user as Client).testResult = results[0]; 
+                      }
+                  } catch (error) {
+                      console.error('Erro ao carregar resultados:', error);
                   }
               }
               setCurrentUser(user);
@@ -83,9 +95,15 @@ const App: React.FC = () => {
       });
 
       // Se firebase não estiver pronto, paramos o loading manual
-      if (!isFirebaseReady) setIsAuthLoading(false);
+      if (!isFirebaseReady) {
+          clearTimeout(timeoutId);
+          setIsAuthLoading(false);
+      }
 
-      return () => unsubscribe();
+      return () => {
+          clearTimeout(timeoutId);
+          unsubscribe();
+      };
   }, []);
 
   const handleLogin = (user: LoggedInUser) => {
@@ -158,7 +176,13 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (isAuthLoading) {
-        return <div className="flex justify-center items-center h-screen text-gray-500">Carregando sistema...</div>;
+        return (
+            <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+                <p className="text-gray-700 text-lg font-semibold">Carregando PsicoTest Pro...</p>
+                <p className="text-gray-500 text-sm mt-2">Conectando ao sistema</p>
+            </div>
+        );
     }
 
     if (!currentUser) {
