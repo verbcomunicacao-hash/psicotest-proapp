@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { LoggedInUser, UserRole, TestResult, Client, Questionnaire } from './types';
-import LoginPage from './components/LoginPage';
-import AdminDashboard from './components/AdminDashboard';
-import ProfessionalDashboard from './components/ProfessionalDashboard';
-import UserDashboard from './components/UserDashboard';
-import UserTestPage from './components/UserTestPage';
-import UserResultPage from './components/UserResultPage';
-import Header from './components/Header';
-import { professionalUsers } from './services/mockData';
-import { allTests } from './services/allTests';
-import { EyeIcon } from './components/icons/EyeIcon';
-import { subscribeToAuth, logoutUser, saveTestResultToFirebase, getUserResultsFromFirebase, isFirebaseReady } from './services/firebase';
+import { LoggedInUser, UserRole, TestResult, Client, Questionnaire } from '../types';
+import LoginPage from '../components/LoginPage';
+import AdminDashboard from '../components/AdminDashboard';
+import ProfessionalDashboard from '../components/ProfessionalDashboard';
+import UserDashboard from '../components/UserDashboard';
+import UserTestPage from '../components/UserTestPage';
+import UserResultPage from '../components/UserResultPage';
+import Header from '../components/Header';
+import { professionalUsers } from '../services/mockData';
+import { allTests } from '../services/allTests';
+import { EyeIcon } from '../components/icons/EyeIcon';
+import { subscribeToAuth, logoutUser, saveTestResultToFirebase, getUserResultsFromFirebase, isFirebaseReady } from '../services/firebase';
 
 // Force UI refresh
 const TestSelectionPage: React.FC<{ onSelectTest: (test: Questionnaire) => void; onBack: () => void; }> = ({ onSelectTest, onBack }) => (

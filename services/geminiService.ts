@@ -10,7 +10,7 @@ interface AnalysisResponse {
   summary: string;
 }
 
-const analysisSchema = {
+const analysisSchema: any = {
   type: SchemaType.OBJECT,
   properties: {
     analysis: {
