@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Questionnaire, TestScores } from '../types';
 
 // Fix: Initialize GoogleGenAI as per guidelines. Assumes process.env.API_KEY is available.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY });
 
 
 interface AnalysisResponse {
